@@ -23,20 +23,20 @@ class Voronoi {
   double length;
   double width;
   std::vector<Obstacle *> obstacles;
-  std::vector<Point *> voronoi_points;
-  std::vector<Point *> junctions;
+  std::vector<Vector2 *> voronoi_points;
+  std::vector<Vector2 *> junctions;
   void CreateVoronoi();
-  std::vector<Point *> getVoronoiPath(Point departure, Point arrival,
-                                      std::vector<Point *> *junctions_s);
-  std::vector<Point *> getVoronoiPath2(Point departure, Point arrival);
+  std::vector<Vector2 *> getVoronoiPath(Vector2 departure, Vector2 arrival,
+                                      std::vector<Vector2 *> *junctions_s);
+  std::vector<Vector2 *> getVoronoiPath2(Vector2 departure, Vector2 arrival);
 
  public:
   Voronoi(double width, double length, std::vector<Obstacle *> obstacles);
   std::vector<Obstacle *> *getobstacles();
-  std::vector<Point *> *getVoronoiPoints();
-  std::vector<Point> getPaths(Point departure, Point arrival);
-  Point getPointDistanceMinimum(Point p);
-  std::vector<Point *> *getJunctions();
+  std::vector<Vector2 *> *getVoronoiPoints();
+  std::vector<Vector2> getPaths(Vector2 departure, Vector2 arrival);
+  Vector2 getPointDistanceMinimum(Vector2 p);
+  std::vector<Vector2 *> *getJunctions();
 };
 
 Voronoi::Voronoi(double width, double length,
@@ -44,29 +44,29 @@ Voronoi::Voronoi(double width, double length,
   this->obstacles = obstacles;
 
   // Use this if you don't want the links of the environment explanations
-  std::vector<Point *> environment;
-  environment.push_back(new Point(0, 0));
-  environment.push_back(new Point(width - 1, 0));
-  environment.push_back(new Point(width - 1, length - 1));
-  environment.push_back(new Point(0, length - 1));
+  std::vector<Vector2 *> environment;
+  environment.push_back(new Vector2(0, 0));
+  environment.push_back(new Vector2(width - 1, 0));
+  environment.push_back(new Vector2(width - 1, length - 1));
+  environment.push_back(new Vector2(0, length - 1));
   this->obstacles.push_back(new Obstacle(&environment));
 
   // use this if you want the edges of the environment
-  /*std::vector<Point*> environment;
-  environment.push_back(new Point(0,0));
-  environment.push_back(new Point(width-1,0));
+  /*std::vector<Vector2*> environment;
+  environment.push_back(new Vector2(0,0));
+  environment.push_back(new Vector2(width-1,0));
   this->obstacles.push_back(new Obstacle(&environment));
-  std::vector<Point*> environment2;
-  environment2.push_back(new Point(width-1,1));
-  environment2.push_back(new Point(width-1,length-1));
+  std::vector<Vector2*> environment2;
+  environment2.push_back(new Vector2(width-1,1));
+  environment2.push_back(new Vector2(width-1,length-1));
   this->obstacles.push_back(new Obstacle(&environment2));
-  std::vector<Point*> environment3;
-  environment3.push_back(new Point(width-2,length-1));
-  environment3.push_back(new Point(0,length-1));
+  std::vector<Vector2*> environment3;
+  environment3.push_back(new Vector2(width-2,length-1));
+  environment3.push_back(new Vector2(0,length-1));
   this->obstacles.push_back(new Obstacle(&environment3));
-  std::vector<Point*> environment4;
-  environment4.push_back(new Point(0,length-2));
-  environment4.push_back(new Point(0,1));
+  std::vector<Vector2*> environment4;
+  environment4.push_back(new Vector2(0,length-2));
+  environment4.push_back(new Vector2(0,1));
   this->obstacles.push_back(new Obstacle(&environment4));*/
 
   this->length = length;
@@ -79,9 +79,9 @@ Voronoi::Voronoi(double width, double length,
 
 std::vector<Obstacle *> *Voronoi::getobstacles() { return &obstacles; }
 
-std::vector<Point *> *Voronoi::getVoronoiPoints() { return &voronoi_points; }
+std::vector<Vector2 *> *Voronoi::getVoronoiPoints() { return &voronoi_points; }
 
-std::vector<Point *> *Voronoi::getJunctions() { return &junctions; }
+std::vector<Vector2 *> *Voronoi::getJunctions() { return &junctions; }
 
 void Voronoi::CreateVoronoi() {
   for (double tmpY = unit; tmpY < length - unit; tmpY += unit) {
@@ -89,7 +89,7 @@ void Voronoi::CreateVoronoi() {
     std::cout << "[!] Processing: " << percentage << "% \r";
 
     for (double tmpX = unit; tmpX < width - unit; tmpX += unit) {
-      Point *tmp_Point = new Point(tmpX, tmpY);
+      Vector2 *tmp_Point = new Vector2(tmpX, tmpY);
 
       std::vector<double> distances;
       for (int i = 0; i < obstacles.size(); i++) {
@@ -124,18 +124,18 @@ void Voronoi::CreateVoronoi() {
   }
 }
 
-std::vector<Point> Voronoi::getPaths(Point departure, Point arrival) {
+std::vector<Vector2> Voronoi::getPaths(Vector2 departure, Vector2 arrival) {
   std::cout << "[!] Calculating path..." << std::endl;
 
-  std::vector<Point> paths;
+  std::vector<Vector2> paths;
   paths.push_back(departure);  // temporary
   double dist = std::numeric_limits<double>::infinity();
   double dist2 = std::numeric_limits<double>::infinity();
-  Point *minimum_arrival = NULL;
-  Point *minimum = NULL;
+  Vector2 *minimum_arrival = NULL;
+  Vector2 *minimum = NULL;
 
   for (int i = 0; i < voronoi_points.size(); i++) {
-    Point *p = voronoi_points.at(i);
+    Vector2 *p = voronoi_points.at(i);
     double val =
         sqrt((departure.getX() - p->getX()) * (departure.getX() - p->getX()) +
              (departure.getY() - p->getY()) * (departure.getY() - p->getY()));
@@ -160,11 +160,11 @@ std::vector<Point> Voronoi::getPaths(Point departure, Point arrival) {
   if (minimum->getX() == arrival.getX() && minimum->getY() == arrival.getY())
     return paths;
 
-  std::vector<Point *> voronoi_path =
+  std::vector<Vector2 *> voronoi_path =
       getVoronoiPath(*minimum, *minimum_arrival, NULL);
 
   if (voronoi_path.size() > 0) {
-    Point *tmp = voronoi_path.at(0);
+    Vector2 *tmp = voronoi_path.at(0);
     paths.push_back(*tmp);
     for (int i = 1; i < voronoi_path.size(); i++) {
       if (Obstacle::Distance(*tmp, *voronoi_path.at(i)) >= Distance) {
@@ -173,7 +173,7 @@ std::vector<Point> Voronoi::getPaths(Point departure, Point arrival) {
       }
     }
 
-    std::vector<Point> temp;
+    std::vector<Vector2> temp;
     for (int i = 0; i < paths.size(); i += gap) {
       temp.push_back(paths.at(i));
     }
@@ -187,19 +187,19 @@ std::vector<Point> Voronoi::getPaths(Point departure, Point arrival) {
   return paths;
 }
 
-std::vector<Point *> Voronoi::getVoronoiPath(
-    Point departure, Point arrival, std::vector<Point *> *junctions_s) {
-  std::vector<Point *> paths;
-  std::vector<Point *> past_points;
+std::vector<Vector2 *> Voronoi::getVoronoiPath(
+    Vector2 departure, Vector2 arrival, std::vector<Vector2 *> *junctions_s) {
+  std::vector<Vector2 *> paths;
+  std::vector<Vector2 *> past_points;
   past_points.push_back(&departure);
 
-  Point *tmp = &departure;
+  Vector2 *tmp = &departure;
 
   do {
-    std::vector<Point *> neighbors;
+    std::vector<Vector2 *> neighbors;
 
     for (int i = 0; i < voronoi_points.size(); i++) {
-      Point *p = voronoi_points.at(i);
+      Vector2 *p = voronoi_points.at(i);
       double val = sqrt((tmp->getX() - p->getX()) * (tmp->getX() - p->getX()) +
                         (tmp->getY() - p->getY()) * (tmp->getY() - p->getY()));
 
@@ -213,9 +213,9 @@ std::vector<Point *> Voronoi::getVoronoiPath(
 
     if (neighbors.size() > 0) {
       double dist = std::numeric_limits<double>::infinity();
-      Point *temp;
+      Vector2 *temp;
       for (int i = 0; i < neighbors.size(); i++) {
-        Point *neighbor = neighbors.at(i);
+        Vector2 *neighbor = neighbors.at(i);
         double val = sqrt((neighbor->getX() - arrival.getX()) *
                               (neighbor->getX() - arrival.getX()) +
                           (neighbor->getY() - arrival.getY()) *
@@ -239,11 +239,11 @@ std::vector<Point *> Voronoi::getVoronoiPath(
 
       paths.clear();
       past_points.clear();
-      Point *junction_neighbor = NULL;
+      Vector2 *junction_neighbor = NULL;
 
       double dist = std::numeric_limits<double>::infinity();
       for (int i = 0; i < junctions.size(); i++) {
-        Point *inc = junctions.at(i);
+        Vector2 *inc = junctions.at(i);
         double val = Obstacle::Distance(*inc, arrival);
         bool present = false;
         if (junctions_s != NULL)
@@ -268,14 +268,14 @@ std::vector<Point *> Voronoi::getVoronoiPath(
                 << " " << junction_neighbor->getY();
 
       if (junctions_s == NULL) {
-        std::vector<Point *> chosen_junctions;
+        std::vector<Vector2 *> chosen_junctions;
         junctions_s = &chosen_junctions;
       }
 
       junctions_s->push_back(junction_neighbor);
       paths = getVoronoiPath(departure, *junction_neighbor, junctions_s);
 
-      std::vector<Point *> remaining =
+      std::vector<Vector2 *> remaining =
           getVoronoiPath(*junction_neighbor, arrival, junctions_s);
 
       paths.insert(paths.end(), remaining.begin(), remaining.end());
@@ -287,16 +287,16 @@ std::vector<Point *> Voronoi::getVoronoiPath(
   return paths;
 }
 
-std::vector<Point *> Voronoi::getVoronoiPath2(Point departure, Point arrival) {
-  std::vector<Point *> paths;
+std::vector<Vector2 *> Voronoi::getVoronoiPath2(Vector2 departure, Vector2 arrival) {
+  std::vector<Vector2 *> paths;
 
-  Point *junctions_departure;
-  Point *junctions_arrival;
+  Vector2 *junctions_departure;
+  Vector2 *junctions_arrival;
 
   double dist1 = 10000;
   double dist2 = 10000;
   for (int i = 0; i < junctions.size(); i++) {
-    Point *inc = junctions.at(i);
+    Vector2 *inc = junctions.at(i);
     double val = Obstacle::Distance(*inc, departure);
     double val2 = Obstacle::Distance(*inc, arrival);
     if (val < dist1) {
@@ -310,9 +310,9 @@ std::vector<Point *> Voronoi::getVoronoiPath2(Point departure, Point arrival) {
   }
 
   dist1 = 10000;
-  Point *junction_goal;
+  Vector2 *junction_goal;
   for (int i = 0; i < junctions.size(); i++) {
-    Point *inc = junctions.at(i);
+    Vector2 *inc = junctions.at(i);
     double val = Obstacle::Distance(*inc, *junctions_departure);
     double val2 = Obstacle::Distance(*inc, *junctions_arrival);
     if (fabs(val - val2) < dist1) {
@@ -323,7 +323,7 @@ std::vector<Point *> Voronoi::getVoronoiPath2(Point departure, Point arrival) {
 
   paths = getVoronoiPath(departure, *junctions_arrival, NULL);
 
-  std::vector<Point *> temp;
+  std::vector<Vector2 *> temp;
 
   temp = getVoronoiPath(*junctions_arrival, arrival, NULL);
   paths.insert(paths.end(), temp.begin(), temp.end());
