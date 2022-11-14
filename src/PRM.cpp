@@ -61,9 +61,9 @@ std::vector<Vector2*> PRM::getPaths(Vector2* starting, Vector2* goal,
                                     std::vector<Obstacle*> obstacles) {
   generateRandomNodes();
   std::cout << "[+] Random Nodes Generated." << std::endl;
-  std::vector<std::vector<int>> neighbors = connectNeighbors();
+  connectNeighbors();
   std::cout << "[+] Neighbors Connected." << std::endl;
-  drawNeighborsPath(neighbors);
+  drawNeighborsPath();
   std::cout << "[+] Path Drawn" << std::endl;
   return paths;
 }
@@ -123,8 +123,8 @@ bool PRM::obstacleHitWithRay(Vector2 ray_start, Vector2 ray_dir,
   return true;
 }
 
-std::vector<std::vector<int>> PRM::connectNeighbors() {
-  std::vector<std::vector<int>> neighbors;
+void PRM::connectNeighbors() {
+  neighbors.clear();
   for (int i = 0; i < nodeSize; i++) {
     float percentage = ((float)i / (float)(nodeSize)) * 100;
     std::cout << "[!] Connecting Neighbors: " << percentage << "% \r";
@@ -148,10 +148,9 @@ std::vector<std::vector<int>> PRM::connectNeighbors() {
     }
     neighbors.push_back(nei);
   }
-  return neighbors;
 }
 
-void PRM::drawNeighborsPath(std::vector<std::vector<int>> neighbors) {
+void PRM::drawNeighborsPath() {
   for (int i = 0; i < neighbors.size(); i++) {
     float percentage = ((float)i / (float)(neighbors.size())) * 100;
     std::cout << "[!] Drawing Paths: " << percentage << "% \r";
@@ -198,3 +197,23 @@ void PRM::drawNeighborsPath(std::vector<std::vector<int>> neighbors) {
 int PRM::getPathsSize() { return size; }
 
 int PRM::getNodeSize() { return nodeSize; }
+
+std::vector<std::vector<int>> PRM::getNeighbors(){return neighbors;}
+
+int PRM::closestNode(Vector2* p){
+  int closestID = -1;
+  float minDist = std::numeric_limits<float>::infinity();
+  for (int i = 0; i < nodes.size(); i++) {
+    float dist = p->distanceTo(*nodes.at(i));
+    if (dist < minDist) {
+      Vector2 dir = p->directionTo(*nodes.at(i));
+      bool hit = obstaclesHitWithRay(*p, dir, dist);
+      if(hit){
+       continue; 
+      }
+      closestID = i;
+      minDist = dist;
+    }
+  }
+  return closestID;
+}

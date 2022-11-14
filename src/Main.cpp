@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "PRM.h"
+#include "Astar.h"
 
 const int maxX = 200;
 const int maxY = 200;
@@ -110,16 +111,27 @@ int main() {
   obstacles.push_back(table11);
   obstacles.push_back(table12);
 
-  // Voronoi *map = new Voronoi(maxX, maxY, obstacles);
-  // std::vector<Vector2 *> *voronoi = map->getVoronoiPoints();
-  // obstacles = *map->getobstacles();
-
   Vector2 *depature = new Vector2(20, 180);
   Vector2 *arrival = new Vector2(119, 30);
-  // std::vector<Vector2> Paths = map->getPaths(*depature, *arrival);
   
   PRM* prm = new PRM(maxX, maxY, obstacles);
   std::vector<Vector2*> randomPaths = prm->getPaths(depature, arrival, obstacles);
+
+  std::vector<std::vector<int>> prmNeighbors = prm->getNeighbors();
+  std::vector<Vector2*> prmNodes = prm->getNodes();
+  int startNodeID = prm->closestNode(depature);
+  int goalNodeID = prm->closestNode(arrival);
+  std::vector<Vector2*> AstarPath = Astar::getPaths(depature, arrival, startNodeID, goalNodeID, prmNeighbors, prmNodes);
+  
+  // environment bounds
+  std::vector<Vector2*> environment;
+  environment.push_back(new Vector2(0,0));
+  environment.push_back(new Vector2(0,200));
+  environment.push_back(new Vector2(200,200));
+  environment.push_back(new Vector2(200,0));
+  Obstacle *environmentObs = new Obstacle(&environment);
+  obstacles.push_back(environmentObs);
+
 
   std::ofstream fobstacles("obstacles.txt");
   for (int i = 0; i < obstacles.size(); i++) {
@@ -147,9 +159,9 @@ int main() {
   }
   frandomNode.close();
 
-  // std::ofstream fPaths("pathsToFollow.txt");
-  // for (int i = 0; i < Paths.size(); i++) {
-  //   fPaths << Paths.at(i).getX() << " " << Paths.at(i).getY() << std::endl;
-  // }
-  // fPaths.close();
+  std::ofstream fPaths("pathsToFollow.txt");
+  for (int i = 0; i < AstarPath.size(); i++) {
+    fPaths << AstarPath.at(i)->getX() << " " << AstarPath.at(i)->getY() << std::endl;
+  }
+  fPaths.close();
 }

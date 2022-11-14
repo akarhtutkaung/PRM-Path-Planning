@@ -1,3 +1,6 @@
+#ifndef Vector2_H_
+#define Vector2_H_
+
 class Vector2 {
  public:
   double x, y;
@@ -14,3 +17,5 @@ class Vector2 {
   double getX();
   double getY();
 };
+
+#endif  // Vector2_H_
