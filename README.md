@@ -48,6 +48,4 @@ Declaring Map Area:
   const double maxY = ?;
   ```
 
-## Example Generated Path
-
 
